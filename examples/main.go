@@ -7,7 +7,14 @@ import (
 )
 
 func main() {
-	parseResult, err := parser.ParseFile("./example.toml")
+	args := os.Args
+	if len(args) != 2 {
+		fmt.Fprintln(os.Stderr, "invalid usage")
+		return
+	}
+	fileName := args[1]
+
+	parseResult, err := parser.ParseFile(fileName)
 	if err != nil {
 		_, _ = fmt.Fprintln(os.Stderr, "Error parsing file:", err)
 		return
