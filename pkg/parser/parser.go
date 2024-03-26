@@ -22,6 +22,7 @@ const (
 	Escape             = '\\'
 	ArrayOpen          = '['
 	ArrayClose         = ']'
+	ArraySep           = ','
 	InlineTableOpen    = '{'
 	InlineTableClose   = '}'
 	DecimalPoint       = '.'

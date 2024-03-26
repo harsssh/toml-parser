@@ -20,5 +20,5 @@ func IsBracketedBy(s, prefix, suffix string) bool {
 }
 
 func SplitAtIndex(s string, i int) (string, string) {
-	return s[:i], s[i:]
+	return s[:i], s[i+1:]
 }

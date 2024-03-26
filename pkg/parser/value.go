@@ -23,9 +23,9 @@ func parseValue(value string) (any, error) {
 		return parseNormalString(value)
 	}
 
-	// TODO: array
+	// array
 	if value[0] == ArrayOpen {
-		return value, nil
+		return parseArray(value)
 	}
 
 	// TODO: inline-table
