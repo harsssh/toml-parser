@@ -1,6 +1,9 @@
 package parser
 
-import "strings"
+import (
+	"strings"
+	"toml-parser/pkg/utils"
+)
 
 /*
 val = string / boolean / array / inline-table / date-time / float / integer
@@ -32,17 +35,17 @@ func parseValue(value string) (any, error) {
 
 	// TODO: date-time
 	// full-date (2024-04-02) or partial-time (09:42) から始まる
-	// float, integer 以外はパース済みなので, 記号の有無を調べればよい
-	if strings.Contains(value, "-") || strings.Contains(value, ":") {
+	// float, integer 以外はパース済みなので, ":" が含まれたら date-time
+	if utils.MatchesPattern(value, `\d{4}-\d{2}-\d{2}`) || strings.Contains(value, ":") {
 		return value, nil
 	}
 
-	// TODO: float
+	// float
 	// integer 以外はパース済みなので, "e" または "." の有無を調べればよい
 	// inf, nan の場合もある
 	if strings.Contains(value, "e") || strings.Contains(value, ".") ||
 		strings.HasSuffix(value, "inf") || strings.HasSuffix(value, "nan") {
-		return value, nil
+		return parseFloat(value)
 	}
 
 	// integer

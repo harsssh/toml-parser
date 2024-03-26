@@ -10,8 +10,8 @@ fruit.flavor = "banana"   # same as fruit.flavor
 "quoted_key" = "value"
 "key with space" = "value"
 
-f1 = true
-f2 = false
+b1 = true
+b2 = false
 
 zero = 0
 x = 1
@@ -22,6 +22,12 @@ min = -9223372036854775808
 a = 0xA
 b = 0o12
 c = 0b1010
+
+f1 = 1.0
+f2 = 1e2
+f3 = 1.0e2
+f4 = 1.0e-2
+f5 = +1.0e+02
 
 [owner]
 name = "Tom Preston-Werner"

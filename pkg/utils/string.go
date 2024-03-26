@@ -18,3 +18,7 @@ func IsEnclosedBy(s string, t string) bool {
 func IsBracketedBy(s, prefix, suffix string) bool {
 	return strings.HasPrefix(s, prefix) && strings.HasSuffix(s, suffix)
 }
+
+func SplitAtIndex(s string, i int) (string, string) {
+	return s[:i], s[i:]
+}

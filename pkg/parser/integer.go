@@ -19,13 +19,14 @@ bin-int = bin-prefix digit0-1 *( digit0-1 / underscore digit0-1 )
 */
 func parseInteger(numStr string) (int64, error) {
 	var base int
-	if isValidInt(numStr, "0x", "[0-9A-Z]") {
+	// TODO: 無駄にマッチさせない
+	if utils.MatchesPattern(numStr, generateIntPattern("0x", "[0-9A-Z]")) {
 		base = 16
-	} else if isValidInt(numStr, "0o", "[0-7]") {
+	} else if utils.MatchesPattern(numStr, generateIntPattern("0o", "[0-7]")) {
 		base = 8
-	} else if isValidInt(numStr, "0b", "[01]") {
+	} else if utils.MatchesPattern(numStr, generateIntPattern("0b", "[01]")) {
 		base = 2
-	} else if isValidDecimalInt(numStr) {
+	} else if utils.MatchesPattern(numStr, generateDecimalIntPattern()) {
 		base = 10
 	} else {
 		return 0, fmt.Errorf("invalid integer: %s\n", numStr)
@@ -43,12 +44,10 @@ func parseInteger(numStr string) (int64, error) {
 	return parsedInt, nil
 }
 
-func isValidDecimalInt(s string) bool {
-	pattern := `(\+|\-)?(\d|(\d(\d|_\d)*))`
-	return utils.MatchesPattern(s, pattern)
+func generateDecimalIntPattern() string {
+	return `(\+|\-)?(\d|(\d(\d|_\d)*))`
 }
 
-func isValidInt(s, prefixPattern, digitPattern string) bool {
-	pattern := fmt.Sprintf(`%s%s(%s|_%s)*`, prefixPattern, digitPattern, digitPattern, digitPattern)
-	return utils.MatchesPattern(s, pattern)
+func generateIntPattern(prefixPattern, digitPattern string) string {
+	return fmt.Sprintf(`%s%s(%s|_%s)*`, prefixPattern, digitPattern, digitPattern, digitPattern)
 }

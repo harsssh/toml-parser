@@ -24,6 +24,7 @@ const (
 	ArrayClose         = ']'
 	InlineTableOpen    = '{'
 	InlineTableClose   = '}'
+	DecimalPoint       = '.'
 )
 
 func ParseFile(fileName string) (map[string]any, error) {
