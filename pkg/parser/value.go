@@ -38,6 +38,12 @@ func parseValue(value string) (any, error) {
 	}
 
 	// TODO: float
+	// integer 以外はパース済みなので, "e" または "." の有無を調べればよい
+	// inf, nan の場合もある
+	if strings.Contains(value, "e") || strings.Contains(value, ".") ||
+		strings.HasSuffix(value, "inf") || strings.HasSuffix(value, "nan") {
+		return value, nil
+	}
 
 	// integer
 	parsedValue, err := parseInteger(value)
