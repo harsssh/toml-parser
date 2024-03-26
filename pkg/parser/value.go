@@ -1,5 +1,7 @@
 package parser
 
+import "strings"
+
 /*
 val = string / boolean / array / inline-table / date-time / float / integer
 */
@@ -29,6 +31,11 @@ func parseValue(value string) (any, error) {
 	}
 
 	// TODO: date-time
+	// full-date (2024-04-02) or partial-time (09:42) から始まる
+	// float, integer 以外はパース済みなので, 記号の有無を調べればよい
+	if strings.Contains(value, "-") || strings.Contains(value, ":") {
+		return value, nil
+	}
 
 	// TODO: float
 
