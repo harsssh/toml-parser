@@ -18,6 +18,7 @@ const (
 	DotSep             = '.'
 	QuotationMark      = '"'
 	Apostrophe         = '\''
+	Escape             = '\\'
 )
 
 func ParseFile(fileName string) (map[string]any, error) {
