@@ -2,6 +2,7 @@ package parser
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 )
 
@@ -40,7 +41,29 @@ func parseSimpleKey(key string) (string, error) {
 	return parseUnquotedKey(key)
 }
 
+/*
+unquoted-key = 1*unquoted-key-char
+unquoted-key-char = ALPHA / DIGIT / %x2D / %x5F         ; a-z A-Z 0-9 - _
+unquoted-key-char =/ %xB2 / %xB3 / %xB9 / %xBC-BE       ; superscript digits, fractions
+unquoted-key-char =/ %xC0-D6 / %xD8-F6 / %xF8-37D       ; non-symbol chars in Latin block
+unquoted-key-char =/ %x37F-1FFF                         ; exclude GREEK QUESTION MARK, which is basically a semi-colon
+unquoted-key-char =/ %x200C-200D / %x203F-2040          ; from General Punctuation Block, include the two tie symbols and ZWNJ, ZWJ
+unquoted-key-char =/ %x2070-218F / %x2460-24FF          ; include super-/subscripts, letterlike/numberlike forms, enclosed alphanumerics
+unquoted-key-char =/ %x2C00-2FEF / %x3001-D7FF          ; skip arrows, math, box drawing etc, skip 2FF0-3000 ideographic up/down markers and spaces
+unquoted-key-char =/ %xF900-FDCF / %xFDF0-FFFD          ; skip D800-DFFF surrogate block, E000-F8FF Private Use area, FDD0-FDEF intended for process-internal use (unicode)
+unquoted-key-char =/ %x10000-EFFFF                      ; all chars outside BMP range, excluding
+*/
 func parseUnquotedKey(key string) (string, error) {
+	// TODO: 英数字, ハイフン, アンダースコア以外の文字種の検証
+	regex, err := regexp.Compile(`[a-zA-Z0-9\-_]+`)
+	if err != nil {
+		return "", fmt.Errorf("invalid regular expression")
+	}
+
+	if !regex.MatchString(key) {
+		return "", fmt.Errorf("invalid key character: %s\n", key)
+	}
+
 	return key, nil
 }
 
