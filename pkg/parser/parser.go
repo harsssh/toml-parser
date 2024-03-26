@@ -15,6 +15,9 @@ const (
 	StdTableClose      = ']'
 	ArrayTableOpen     = "[["
 	ArrayTableClose    = "]]"
+	DotSep             = '.'
+	QuotationMark      = '"'
+	Apostrophe         = '\''
 )
 
 func ParseFile(fileName string) (map[string]any, error) {
@@ -45,20 +48,20 @@ func ParseFile(fileName string) (map[string]any, error) {
 		if line[0] == StdTableOpen {
 			/* table = std-table / array-table */
 			// [key] or [[key]]
-			key, err := parseTableExpression(line)
+			keys, err := parseTableExpression(line)
 			if err != nil {
 				return nil, err
 			}
 			// TODO: 抽出後の処理
-			fmt.Printf("table: %v\n", key)
+			fmt.Printf("table: %v\n", keys)
 		} else {
 			// keyval
-			key, val, err := parseKeyValueExpression(line)
+			keys, val, err := parseKeyValueExpression(line)
 			if err != nil {
 				return nil, err
 			}
 			// TODO: 抽出後の処理
-			fmt.Printf("keyval: (%v, %v)\n", key, val)
+			fmt.Printf("keyval: %v, %v\n", keys, val)
 		}
 	}
 
@@ -82,27 +85,30 @@ func removeComment(line string) string {
 keyval = key keyval-sep val
 keyval-sep = ws %x3D ws ; =
 */
-func parseKeyValueExpression(line string) (string, any, error) {
+func parseKeyValueExpression(line string) ([]string, any, error) {
 	sepIdx := strings.Index(line, string(KeyValSep))
 	if sepIdx == -1 {
-		return "", nil, fmt.Errorf("missing keyval-sep: %s\n", line)
+		return nil, nil, fmt.Errorf("missing keyval-sep: %s\n", line)
 	}
 
 	keyString := strings.TrimRight(line[:sepIdx], WhiteSpace)
 	valueString := strings.TrimLeft(line[sepIdx+1:], WhiteSpace)
 	if len(valueString) == 0 {
-		return "", nil, fmt.Errorf("missing val: %s\n", line)
+		return nil, nil, fmt.Errorf("missing val: %s\n", line)
 	}
 
 	// TODO: さらにパース
-	return keyString, valueString, nil
+	parsedKey, err := parseKey(keyString)
+	if err != nil {
+		return nil, nil, err
+	}
+	return parsedKey, valueString, nil
 }
 
-// TODO: 何を返すか考える, key?
-func parseTableExpression(line string) (string, error) {
+func parseTableExpression(line string) ([]string, error) {
 	if strings.HasPrefix(line, ArrayTableOpen) {
 		if !strings.HasSuffix(line, ArrayTableClose) {
-			return "", fmt.Errorf("missing array-table-close: %s\n", line)
+			return nil, fmt.Errorf("missing array-table-close: %s\n", line)
 		}
 
 		/*
@@ -111,11 +117,10 @@ func parseTableExpression(line string) (string, error) {
 			std-table-close = ws %x5D     ; ] Right square bracket
 		*/
 		keyString := strings.Trim(line[2:len(line)-2], WhiteSpace)
-		// TODO: さらにパース
-		return keyString, nil
+		return parseKey(keyString)
 	} else if line[0] == StdTableOpen {
 		if line[len(line)-1] != StdTableClose {
-			return "", fmt.Errorf("missing std-table-close: %s\n", line)
+			return nil, fmt.Errorf("missing std-table-close: %s\n", line)
 		}
 
 		/*
@@ -125,10 +130,9 @@ func parseTableExpression(line string) (string, error) {
 			array-table-close = ws %x5D.5D  ; ]] Double right square bracket
 		*/
 		keyString := strings.Trim(line[1:len(line)-1], WhiteSpace)
-		// TODO: さらにパース
-		return keyString, nil
+		return parseKey(keyString)
 	}
 
 	// invalid table
-	return "", fmt.Errorf("invalid expression: %s\n", line)
+	return nil, fmt.Errorf("invalid expression: %s\n", line)
 }
