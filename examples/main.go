@@ -14,10 +14,9 @@ func main() {
 	}
 	fileName := args[1]
 
-	parseResult, err := parser.ParseFile(fileName)
+	_, err := parser.ParseFile(fileName)
 	if err != nil {
 		_, _ = fmt.Fprintln(os.Stderr, "Error parsing file:", err)
 		return
 	}
-	_, _ = fmt.Fprintln(os.Stderr, parseResult)
 }
