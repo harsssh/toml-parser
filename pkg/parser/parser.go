@@ -20,6 +20,10 @@ const (
 	QuotationMark      = '"'
 	Apostrophe         = '\''
 	Escape             = '\\'
+	ArrayOpen          = '['
+	ArrayClose         = ']'
+	InlineTableOpen    = '{'
+	InlineTableClose   = '}'
 )
 
 func ParseFile(fileName string) (map[string]any, error) {

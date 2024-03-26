@@ -19,10 +19,23 @@ func parseValue(value string) (any, error) {
 	}
 
 	// TODO: array
-	// TODO: inline-table
-	// TODO: date-time
-	// TODO: float
-	// TODO: integer
+	if value[0] == ArrayOpen {
+		return value, nil
+	}
 
-	return value, nil
+	// TODO: inline-table
+	if value[0] == InlineTableOpen {
+		return value, nil
+	}
+
+	// TODO: date-time
+
+	// TODO: float
+
+	// integer
+	parsedValue, err := parseInteger(value)
+	if err != nil {
+		return nil, err
+	}
+	return parsedValue, nil
 }
