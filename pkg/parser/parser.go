@@ -28,6 +28,7 @@ func ParseFile(fileName string) (map[string]any, error) {
 	scanner := bufio.NewScanner(file)
 	/* toml = expression *( newline expression ) */
 	for scanner.Scan() {
+		// TODO: 複数行の array, string
 		line := scanner.Text()
 
 		/*
