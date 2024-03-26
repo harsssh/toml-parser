@@ -104,7 +104,11 @@ func parseKeyValueExpression(line string) ([]string, any, error) {
 	if err != nil {
 		return nil, nil, err
 	}
-	return parsedKey, valueString, nil
+	parsedValue, err := parseValue(valueString)
+	if err != nil {
+		return nil, nil, err
+	}
+	return parsedKey, parsedValue, nil
 }
 
 func parseTableExpression(line string) ([]string, error) {
