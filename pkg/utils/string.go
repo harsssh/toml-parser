@@ -3,10 +3,18 @@ package utils
 import "strings"
 
 func TrimChar(s string) string {
-	return s[1 : len(s)-1]
+	return TrimNChar(s, 1)
+}
+
+func TrimNChar(s string, n int) string {
+	return s[n : len(s)-n]
 }
 
 // IsEnclosedBy Is s enclosed by t?
 func IsEnclosedBy(s string, t string) bool {
-	return strings.HasSuffix(s, t) && strings.HasSuffix(s, t)
+	return IsBracketedBy(s, t, t)
+}
+
+func IsBracketedBy(s, prefix, suffix string) bool {
+	return strings.HasPrefix(s, prefix) && strings.HasSuffix(s, suffix)
 }

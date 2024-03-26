@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"toml-parser/pkg/utils"
 )
 
 const (
@@ -107,30 +108,22 @@ func parseKeyValueExpression(line string) ([]string, any, error) {
 }
 
 func parseTableExpression(line string) ([]string, error) {
-	if strings.HasPrefix(line, ArrayTableOpen) {
-		if !strings.HasSuffix(line, ArrayTableClose) {
-			return nil, fmt.Errorf("missing array-table-close: %s\n", line)
-		}
-
-		/*
-			std-table = std-table-open key std-table-close
-			std-table-open  = %x5B ws     ; [ Left square bracket
-			std-table-close = ws %x5D     ; ] Right square bracket
-		*/
-		keyString := strings.Trim(line[2:len(line)-2], WhiteSpace)
-		return parseKey(keyString)
-	} else if line[0] == StdTableOpen {
-		if line[len(line)-1] != StdTableClose {
-			return nil, fmt.Errorf("missing std-table-close: %s\n", line)
-		}
-
+	if utils.IsBracketedBy(line, ArrayTableOpen, ArrayTableClose) {
 		/*
 			array-table = array-table-open key array-table-close
 
 			array-table-open  = %x5B.5B ws  ; [[ Double left square bracket
 			array-table-close = ws %x5D.5D  ; ]] Double right square bracket
 		*/
-		keyString := strings.Trim(line[1:len(line)-1], WhiteSpace)
+		keyString := strings.Trim(utils.TrimNChar(line, 2), WhiteSpace)
+		return parseKey(keyString)
+	} else if utils.IsBracketedBy(line, string(StdTableOpen), string(StdTableClose)) {
+		/*
+			std-table = std-table-open key std-table-close
+			std-table-open  = %x5B ws     ; [ Left square bracket
+			std-table-close = ws %x5D     ; ] Right square bracket
+		*/
+		keyString := strings.Trim(utils.TrimChar(line), WhiteSpace)
 		return parseKey(keyString)
 	}
 

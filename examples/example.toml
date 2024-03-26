@@ -1,6 +1,14 @@
 # これはTOMLのサンプルファイルです
 
 title = "TOML Example"
+title.color = "red"
+
+fruit.name = "banana"     # this is best practice
+fruit.color = "yellow"    # same as fruit.color
+fruit.flavor = "banana"   # same as fruit.flavor
+
+"quoted_key" = "value"
+"key with space" = "value"
 
 [owner]
 name = "Tom Preston-Werner"
@@ -8,22 +16,22 @@ dob = 1979-05-27T07:32:00-08:00
 
 [database]
 server = "192.168.1.1"
-ports = [ 8001, 8001, 8002 ]
+ports = [8001, 8001, 8002]
 connection_max = 5000
 enabled = true
 
 [servers]
 
-  [servers.alpha]
-  ip = "10.0.0.1"
-  dc = "eqdc10"
+[servers.alpha]
+ip = "10.0.0.1"
+dc = "eqdc10"
 
-  [servers.beta]
-  ip = "10.0.0.2"
-  dc = "eqdc10"
+[servers.beta]
+ip = "10.0.0.2"
+dc = "eqdc10"
 
 [clients]
-data = [ ["gamma", "delta"], [1, 2] ]
+data = [["gamma", "delta"], [1, 2]]
 
 #hosts = [
 #  "alpha",

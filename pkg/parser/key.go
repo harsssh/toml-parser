@@ -2,8 +2,8 @@ package parser
 
 import (
 	"fmt"
-	"regexp"
 	"strings"
+	"toml-parser/pkg/utils"
 )
 
 /*
@@ -55,12 +55,8 @@ unquoted-key-char =/ %x10000-EFFFF                      ; all chars outside BMP 
 */
 func parseUnquotedKey(key string) (string, error) {
 	// TODO: 英数字, ハイフン, アンダースコア以外の文字種の検証
-	regex, err := regexp.Compile(`[a-zA-Z0-9\-_]+`)
-	if err != nil {
-		return "", fmt.Errorf("invalid regular expression")
-	}
-
-	if !regex.MatchString(key) {
+	pattern := `[a-zA-Z0-9\-_]+`
+	if !utils.MatchesPattern(key, pattern) {
 		return "", fmt.Errorf("invalid key character: %s\n", key)
 	}
 
