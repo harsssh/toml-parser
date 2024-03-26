@@ -83,25 +83,26 @@ func findArraySep(arrayValuesStr string) int {
 			return i
 		}
 
-		if c == QuotationMark {
+		switch c {
+		case QuotationMark:
 			if waitDoubleQuote {
 				waitDoubleQuote = false
 			} else {
 				waitDoubleQuote = true
 			}
-		} else if c == Apostrophe {
+		case Apostrophe:
 			if waitSingleQuote {
 				waitSingleQuote = false
 			} else {
 				waitSingleQuote = true
 			}
-		} else if c == ArrayOpen {
+		case ArrayOpen:
 			arrayCount++
-		} else if c == ArrayClose {
+		case ArrayClose:
 			arrayCount--
-		} else if c == InlineTableOpen {
+		case InlineTableOpen:
 			tableCount++
-		} else if c == InlineTableClose {
+		case InlineTableClose:
 			tableCount--
 		}
 	}
