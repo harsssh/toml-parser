@@ -67,24 +67,58 @@ func parseUnquotedKey(key string) (string, error) {
 dotted-key = simple-key 1*( dot-sep simple-key )
 */
 func parseDottedKey(key string) ([]string, error) {
-	// "k1..k2" -> ["k1", "", "k2"]
-	// "k1 . k2" -> ["k1 ", " k2]
-	splitKeys := strings.Split(key, string(DotSep))
+	simpleKeys, err := splitByUnquotedDot(key)
+	if err != nil {
+		return nil, err
+	}
 
-	result := make([]string, len(splitKeys))
-	// 空白要素がある場合, dot が連続しているためエラー
-	// 各要素は trim してから, simple-key としてパース
-	for i, k := range splitKeys {
-		if len(k) == 0 {
-			return nil, fmt.Errorf("invalid dotted-key: %s\n", key)
-		}
-
-		parsedKey, err := parseSimpleKey(strings.Trim(k, WhiteSpace))
+	for i, k := range simpleKeys {
+		parsedKey, err := parseSimpleKey(k)
 		if err != nil {
 			return nil, err
 		}
-		result[i] = parsedKey
+		simpleKeys[i] = parsedKey
 	}
+
+	return simpleKeys, nil
+}
+
+func splitByUnquotedDot(key string) ([]string, error) {
+	var result []string
+	inDoubleQuote := false
+	inSingleQuote := false
+	segmentStart := 0 // 分割するセグメントの開始位置
+	for i, c := range key {
+		if c == QuotationMark {
+			inDoubleQuote = !inDoubleQuote
+			continue
+		}
+		if c == Apostrophe {
+			inSingleQuote = !inSingleQuote
+			continue
+		}
+
+		if c == DotSep && !inDoubleQuote {
+			segment := strings.Trim(key[segmentStart:i], WhiteSpace)
+			if len(segment) == 0 {
+				// dot が連続する場合
+				return nil, fmt.Errorf("invalid key: consecutive dots: %s\n", key)
+			}
+			segmentStart = i + 1
+			result = append(result, segment)
+		}
+	}
+
+	if inSingleQuote || inDoubleQuote {
+		return nil, fmt.Errorf("invalid key: unclosed quote: %s\n", key)
+	}
+
+	// 最後のセグメントを追加
+	segment := strings.Trim(key[segmentStart:], WhiteSpace)
+	if len(segment) == 0 {
+		return nil, fmt.Errorf("invalid key: cannot end with a dot: %s\n", key)
+	}
+	result = append(result, segment)
 
 	return result, nil
 }
