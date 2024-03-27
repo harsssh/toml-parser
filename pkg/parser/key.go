@@ -10,9 +10,8 @@ import (
 key = simple-key / dotted-key
 */
 func parseKey(key string) ([]string, error) {
-	// dot があったら dotted-key
-	// TODO: quote の中に dot が来る場合に対応
-	if strings.Contains(key, string(DotSep)) {
+	// quoted-key でなく, dot があったら dotted-key
+	if key[0] != QuotationMark && key[0] != Apostrophe && strings.Contains(key, string(DotSep)) {
 		splitKeys, err := parseDottedKey(key)
 		if err != nil {
 			return nil, err
