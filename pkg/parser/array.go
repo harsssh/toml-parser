@@ -67,35 +67,26 @@ func parseArrayValues(str string) ([]any, error) {
 	return append([]any{parsedValue}, values...), nil
 }
 
-// TODO: もっとキレイに実装
 // val ws array-sep array-values
 // val ws [ array-sep ]
 // この状態で次の array-sep を探す
 // val に "," が含まれ得ることに注意
 func findArraySep(arrayValuesStr string) int {
-	waitDoubleQuote := false
-	waitSingleQuote := false
+	inDoubleQuote := false
+	inSingleQuote := false
 	arrayCount := 0
 	tableCount := 0
 	for i, c := range arrayValuesStr {
 		if arrayCount == 0 && tableCount == 0 &&
-			!waitDoubleQuote && !waitSingleQuote && c == ArraySep {
+			!inDoubleQuote && !inSingleQuote && c == ArraySep {
 			return i
 		}
 
 		switch c {
 		case QuotationMark:
-			if waitDoubleQuote {
-				waitDoubleQuote = false
-			} else {
-				waitDoubleQuote = true
-			}
+			inDoubleQuote = !inDoubleQuote
 		case Apostrophe:
-			if waitSingleQuote {
-				waitSingleQuote = false
-			} else {
-				waitSingleQuote = true
-			}
+			inSingleQuote = !inSingleQuote
 		case ArrayOpen:
 			arrayCount++
 		case ArrayClose:
