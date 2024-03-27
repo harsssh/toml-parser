@@ -11,6 +11,7 @@ key = simple-key / dotted-key
 */
 func parseKey(key string) ([]string, error) {
 	// dot があったら dotted-key
+	// TODO: quote の中に dot が来る場合に対応
 	if strings.Contains(key, string(DotSep)) {
 		splitKeys, err := parseDottedKey(key)
 		if err != nil {
