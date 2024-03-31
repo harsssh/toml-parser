@@ -1,7 +1,7 @@
 # これはTOMLのサンプルファイルです
 
-title = "TOML Example"
-title.color = "red"
+page.title = "TOML Example"
+page.color = "red"
 
 fruit.name = "banana"     # this is best practice
 fruit.color = "yellow"    # same as fruit.color
@@ -51,12 +51,3 @@ dc = "eqdc10"
 
 [clients]
 data = [["gamma", "delta"], [1, 2]]
-
-#hosts = [
-#  "alpha",
-#  "omega"
-#]
-#
-#str_multiline = """
-#Roses are red
-#Violets are blue"""

@@ -28,6 +28,11 @@ const (
 	DecimalPoint       = '.'
 )
 
+type parserState struct {
+	rootTable    map[string]any
+	currentTable map[string]any
+}
+
 func ParseFile(fileName string) (map[string]any, error) {
 	file, err := os.Open(fileName)
 	if err != nil {
@@ -36,6 +41,7 @@ func ParseFile(fileName string) (map[string]any, error) {
 	defer file.Close()
 
 	result := make(map[string]any)
+	parserState := parserState{rootTable: result, currentTable: result}
 	scanner := bufio.NewScanner(file)
 	/* toml = expression *( newline expression ) */
 	for scanner.Scan() {
@@ -60,16 +66,18 @@ func ParseFile(fileName string) (map[string]any, error) {
 			if err != nil {
 				return nil, err
 			}
-			// TODO: 抽出後の処理
-			fmt.Printf("table: %v\n", keys)
+			if err := updateState(&parserState, keys); err != nil {
+				return nil, err
+			}
 		} else {
 			// keyval
 			keys, val, err := parseKeyValueExpression(line)
 			if err != nil {
 				return nil, err
 			}
-			// TODO: 抽出後の処理
-			fmt.Printf("keyval: %v, %v\n", keys, val)
+			if err := updateTable(parserState.currentTable, keys, val); err != nil {
+				return nil, err
+			}
 		}
 	}
 
@@ -81,7 +89,7 @@ func ParseFile(fileName string) (map[string]any, error) {
 }
 
 func removeComment(line string) string {
-	commentIdx := strings.LastIndex(line, string(CommentStartSymbol))
+	commentIdx := strings.Index(line, string(CommentStartSymbol))
 	if commentIdx != -1 {
 		// comment exists
 		line = line[:commentIdx]
@@ -105,7 +113,6 @@ func parseKeyValueExpression(line string) ([]string, any, error) {
 		return nil, nil, fmt.Errorf("missing val: %s\n", line)
 	}
 
-	// TODO: さらにパース
 	parsedKey, err := parseKey(keyString)
 	if err != nil {
 		return nil, nil, err
@@ -139,4 +146,43 @@ func parseTableExpression(line string) ([]string, error) {
 
 	// invalid table
 	return nil, fmt.Errorf("invalid expression: %s\n", line)
+}
+
+func updateState(state *parserState, keys []string) error {
+	// keys をたどって、目的のテーブルを探索、作成する
+	// テーブルの再定義はエラー、サブテーブルはOK
+	table := state.rootTable
+	for i, key := range keys {
+		if _, ok := table[key]; !ok {
+			table[key] = make(map[string]any)
+		} else if i == len(keys)-1 {
+			return fmt.Errorf("redefined table: %s\n", key)
+		}
+		table = table[key].(map[string]any)
+	}
+
+	state.currentTable = table
+	return nil
+}
+
+func updateTable(table map[string]any, keys []string, value any) error {
+	// keys をたどって、目的のテーブルを探索、値を設定する
+	for i, key := range keys {
+		if i == len(keys)-1 {
+			table[key] = value
+			break
+		}
+
+		if _, ok := table[key]; !ok {
+			table[key] = make(map[string]any)
+		}
+		tmp, ok := table[key].(map[string]any)
+		if !ok {
+			// 設定済みの値をサブテーブルに上書きしようとした場合
+			return fmt.Errorf("redefined key: %s\n", key)
+		}
+		table = tmp
+	}
+
+	return nil
 }
